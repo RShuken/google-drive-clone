@@ -20,11 +20,8 @@ export default function AddFolderButton({ currentFolder }) {
   }
 
   function handleSubmit(e) {
-    console.log('the button has been clicked1');
     e.preventDefault();
-    console.log('the button has been clicked2');
     if (currentFolder == null) return;
-    console.log('the button has been clicked3');
     const path = [...currentFolder.path];
     if (currentFolder !== ROOT_FOLDER) {
       path.push({ name: currentFolder.name, id: currentFolder.id });
