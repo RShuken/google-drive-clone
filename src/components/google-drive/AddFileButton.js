@@ -44,17 +44,44 @@ export default function AddFileButton({ currentFolder }) {
             return uploadFile;
           });
         });
-        },
-      () => {},
+      },
       () => {
-        uploadTask.snapshot.ref.getDownloadURL().then((url) => {
-          database.files.add({
-            url: url,
-            name: file.name,
-            createdAt: database.getCurrentTimestamp(),
-            folderId: currentFolder.id,
-            userId: currentUser.uid,
+        setUploadingFiles((prevUploadingFiles) => {
+          return prevUploadingFiles.map((uploadFile) => {
+            if (uploadFile.id === id) {
+              return { ...uploadFile, error: true };
+            }
+            return uploadFile;
           });
+        });
+      },
+      () => {
+        setUploadingFiles((prevUploadingFiles) => {
+          return prevUploadingFiles.filter((uploadFile) => {
+            return uploadFile.id !== id;
+          });
+        });
+
+        uploadTask.snapshot.ref.getDownloadURL().then((url) => {
+          database.files
+            .where('name', '==', file.name)
+            .where('userId', '==', currentUser.id)
+            .where('folderId', '==', currentFolder.id)
+            .get()
+            .then((existingFiles) => {
+              const existingFile = existingFiles.docs[0];
+              if (existingFile) {
+                existingFile.ref.update({ url: url });
+              } else {
+                database.files.add({
+                  url: url,
+                  name: file.name,
+                  createdAt: database.getCurrentTimestamp(),
+                  folderId: currentFolder.id,
+                  userId: currentUser.uid,
+                });
+              }
+            });
         });
       }
     );
@@ -81,7 +108,16 @@ export default function AddFileButton({ currentFolder }) {
             }}
           >
             {uploadingFiles.map((file) => (
-              <Toast key={file.id}>
+              <Toast
+                key={file.id}
+                onClose={() => {
+                  setUploadingFiles((prevUploadingFiles) => {
+                    return prevUploadingFiles.filter((uploadFile) => {
+                      return uploadFile.id !== file.id;
+                    });
+                  });
+                }}
+              >
                 <Toast.Header
                   closeButton={file.error}
                   className='text-truncate w-100 d-block'
@@ -101,7 +137,7 @@ export default function AddFileButton({ currentFolder }) {
                   />
                 </Toast.Body>
               </Toast>
-        ))}
+            ))}
           </div>,
           document.body
         )}
