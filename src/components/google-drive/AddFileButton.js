@@ -13,7 +13,6 @@ export default function AddFileButton({ currentFolder }) {
   const { currentUser } = useAuth();
 
   function handleUpload(e) {
-    e.preventDefault();
     const file = e.target.files[0];
     if (currentFolder == null || file == null) return;
 
@@ -22,7 +21,6 @@ export default function AddFileButton({ currentFolder }) {
       ...prevUploadingFiles,
       { id: id, name: file.name, progress: 0, error: false },
     ]);
-
     const filePath =
       currentFolder === ROOT_FOLDER
         ? `${currentFolder.path.join('/')}/${file.name}`
@@ -40,7 +38,8 @@ export default function AddFileButton({ currentFolder }) {
           return prevUploadingFiles.map((uploadFile) => {
             if (uploadFile.id === id) {
               return { ...uploadFile, progress: progress };
-            }
+              }
+              
             return uploadFile;
           });
         });
@@ -65,7 +64,7 @@ export default function AddFileButton({ currentFolder }) {
         uploadTask.snapshot.ref.getDownloadURL().then((url) => {
           database.files
             .where('name', '==', file.name)
-            .where('userId', '==', currentUser.id)
+            .where('userId', '==', currentUser.uid)
             .where('folderId', '==', currentFolder.id)
             .get()
             .then((existingFiles) => {
