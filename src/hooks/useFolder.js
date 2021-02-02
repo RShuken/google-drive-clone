@@ -69,10 +69,10 @@ export function useFolder(folderId = null, folder = null) {
   }, [folderId]);
 
   useEffect(() => {
-    database.folders
+    return database.folders
       .where('parentId', '==', folderId)
       .where('userId', '==', currentUser.uid)
-      .orderBy('createdAt')
+      //.orderBy('createdAt')
       .onSnapshot((snapshot) => {
         dispatch({
           type: ACTIONS.SET_CHILD_FOLDERS,
