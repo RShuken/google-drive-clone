@@ -8,7 +8,7 @@ const ACTIONS = {
   SET_CHILD_FOLDERS: 'set-child-folders',
 };
 
-const ROOT_FOLDER = { name: 'Root', id: null, path: [] };
+export const ROOT_FOLDER = { name: 'Root', id: null, path: [] };
 
 function reducer(state, { type, payload }) {
   switch (type) {
@@ -20,9 +20,20 @@ function reducer(state, { type, payload }) {
         childFolders: [],
       };
     case ACTIONS.UPDATE_FOLDER:
-      return { ...state, folder: payload.folder };
+      return {
+        ...state,
+        folder: payload.folder,
+      };
     case ACTIONS.SET_CHILD_FOLDERS:
-      return { ...state, childFolders: payload.childFolders };
+            return {
+        ...state,
+        childFolders: payload.childFolders,
+      };
+    case ACTIONS.SET_CHILD_FILES:
+      return {
+        ...state,
+        childFiles: payload.childFiles,
+      };
     default:
       return state;
   }
@@ -56,13 +67,13 @@ export function useFolder(folderId = null, folder = null) {
       .then((doc) => {
         dispatch({
           type: ACTIONS.UPDATE_FOLDER,
-          payload: { folderId: database.formatDoc(doc) },
+          payload: { folder: database.formatDoc(doc) },
         });
       })
       .catch((err) => {
         dispatch({
           type: ACTIONS.UPDATE_FOLDER,
-          payload: { folderId: ROOT_FOLDER },
+          payload: { folder: ROOT_FOLDER },
         });
         console.log(err);
       });
@@ -72,7 +83,7 @@ export function useFolder(folderId = null, folder = null) {
     return database.folders
       .where('parentId', '==', folderId)
       .where('userId', '==', currentUser.uid)
-      //.orderBy('createdAt')
+      .orderBy('createdAt')
       .onSnapshot((snapshot) => {
         dispatch({
           type: ACTIONS.SET_CHILD_FOLDERS,

@@ -17,7 +17,7 @@ function App() {
             <Switch>
               {/* Google Drive Routes */}
               <PrivateRoute exact path='/' component={Dashboard} />
-              
+              <PrivateRoute exact path='/folder/:folderId' component={Dashboard}/>
               {/* Profile Routes */}
               <PrivateRoute path='/user' component={Profile} />
               <PrivateRoute path='/update-profile' component={UpdateProfile} />
